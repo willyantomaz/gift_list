@@ -27,12 +27,12 @@ public class GiftController {
     }
 
     @PutMapping("update/{id}")
-    public Gift updateGift(@PathVariable Long id, Gift updatedGift) {
+    public Gift updateGift(@PathVariable Long id,@RequestBody Gift updatedGift) {
         Gift gift = giftRepository.findById(id).orElseThrow(() -> new RuntimeException("Gift not found"));
-//        gift.setGift_name(updatedGift.getGift_name());
+        gift.setGift_name(updatedGift.getGift_name());
         gift.setSelected(updatedGift.isSelected());
-//        gift.setGift_giver(updatedGift.getGift_giver());
-//        gift.setCategory(updatedGift.getCategory());
+        gift.setGift_giver(updatedGift.getGift_giver());
+        gift.setCategory(updatedGift.getCategory());
         return giftRepository.save(gift);
     }
 
