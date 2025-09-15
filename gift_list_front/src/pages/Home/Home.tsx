@@ -132,7 +132,6 @@ function Home() {
         ))}
       </Grid>
 
-      {/* Oculta o botão flutuante se a seleção estiver vazia */}
       {selectedGifts.length > 0 && (
         <Fab
           variant="extended"
@@ -146,7 +145,7 @@ function Home() {
             transition: "opacity 0.3s ease-in-out",
           }}
         >
-          <CheckCircleIcon sx={{ mr: 1 }} />
+          <CheckCircleIcon sx={{ mr: 5 }} />
           Confirmar
         </Fab>
       )}
@@ -178,7 +177,11 @@ function Home() {
             onChange={(e) => setName(e.target.value)}
           />
         </DialogContent>
-        <DialogActions>
+        <img src="/src/assets/casamento.svg" alt="Celebration" width="100%" />
+
+        <DialogActions
+          style={{ justifyContent: "space-around", padding: "16px" }}
+        >
           <Button onClick={handleCloseDialog}>Cancelar</Button>
           <Button
             onClick={handleConfirm}
