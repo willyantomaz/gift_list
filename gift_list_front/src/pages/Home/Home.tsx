@@ -19,8 +19,7 @@ import {
   Grid,
   CardContent,
   Typography,
-  Fab, // Importado o componente Fab
-  Box, // Importado para ajudar no posicionamento
+  Fab,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
@@ -70,7 +69,7 @@ function Home() {
     getGifts();
   };
 
-  const groupedGifts = listGifts.reduce((acc, gift) => {
+  const groupedGifts = listGifts.reduce<Record<string, Gift[]>>((acc, gift) => {
     const { category } = gift;
     if (!acc[category]) {
       acc[category] = [];
@@ -87,49 +86,65 @@ function Home() {
       </div>
 
       <Grid container spacing={3} sx={{ p: 2 }}>
-        {Object.keys(groupedGifts).map((categoryName) => (
-          <Grid item xs={12} sm={6} key={categoryName}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
-                  {categoryName}
-                </Typography>
-                <List>
-                  {groupedGifts[categoryName].map((gift) => (
-                    <ListItem
-                      key={gift.id}
-                      disablePadding
-                      sx={{
-                        opacity: gift.selected && gift.gift_giver ? 0.5 : 1,
-                      }}
-                    >
-                      <ListItemText
-                        primary={gift.gift_name}
-                        secondary={`Categoria: ${gift.category}`}
+        {Object.keys(groupedGifts)
+          .sort((a, b) => groupedGifts[a].length - groupedGifts[b].length)
+          .map((categoryName) => (
+            <Grid item xs={12} sm={6} key={categoryName}>
+              <Card sx={{ width: "300px" }}>
+                <CardContent>
+                  <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
+                    {categoryName}
+                  </Typography>
+                  <List
+                    sx={
+                      theme.breakpoints.up("md")
+                        ? {
+                            maxHeight: 10 * 56, // 10 itens na versão desktop
+                            overflowY: "auto",
+                            overflowX: "hidden",
+                          }
+                        : {
+                            maxHeight: 5 * 56, // 5 itens no mobile
+                            overflowY: "auto",
+                            overflowX: "hidden",
+                          }
+                    }
+                  >
+                    {groupedGifts[categoryName].map((gift) => (
+                      <ListItem
+                        key={gift.id}
+                        disablePadding
                         sx={{
-                          textDecoration:
-                            gift.selected && gift.gift_giver
-                              ? "line-through"
-                              : "none",
+                          opacity: gift.selected && gift.gift_giver ? 0.5 : 1,
                         }}
-                      />
-                      <Checkbox
-                        checked={
-                          gift.selected && gift.gift_giver
-                            ? true
-                            : selectedGifts.includes(gift.id)
-                        }
-                        onChange={() => handleToggle(gift.id)}
-                        disabled={gift.selected && gift.gift_giver}
-                        edge="end"
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+                      >
+                        <ListItemText
+                          primary={gift.gift_name}
+                          secondary={`Categoria: ${gift.category}`}
+                          sx={{
+                            textDecoration:
+                              gift.selected && gift.gift_giver
+                                ? "line-through"
+                                : "none",
+                          }}
+                        />
+                        <Checkbox
+                          checked={
+                            gift.selected && gift.gift_giver
+                              ? true
+                              : selectedGifts.includes(gift.id)
+                          }
+                          onChange={() => handleToggle(gift.id)}
+                          disabled={!!(gift.selected && gift.gift_giver)}
+                          edge="end"
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
       </Grid>
 
       {selectedGifts.length > 0 && (
