@@ -2,7 +2,6 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Caveat", cursive;
 }
 
 body {
@@ -13,5 +12,5 @@ body {
 }
 
 p {
-  font-size: 40px;
+  font-size: 20px;
 }

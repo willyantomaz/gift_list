@@ -48,5 +48,22 @@ public class GiftController {
         return giftRepository.findById(id).orElseThrow(() -> new RuntimeException("Gift not found"));
     }
 
+    @PutMapping("/select")
+    public ResponseEntity<String> selectGift(@RequestBody GiftSelectDTO giftSelectDTO) {
+        if (giftSelectDTO.getGifts().size() != 1) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You can only select one gift");
+        }
+        giftSelectDTO.getGifts().forEach(id -> {
+            Gift gift = giftRepository.findById(id.longValue()).orElseThrow(() -> new RuntimeException("Gift not found"));
+            if (gift.isSelected()) {
+                throw new RuntimeException("Gift already selected");
 
+            }
+            gift.setSelected(true);
+            gift.setGift_giver(giftSelectDTO.getName());
+            giftRepository.save(gift);
+        });
+
+        return ResponseEntity.ok("Present selected successfully");
+    }
 }
