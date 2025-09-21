@@ -82,7 +82,7 @@ function Home() {
     <>
       <div className="container">
         <h1>Lista de Presentes</h1>
-        <h3>Selecione o presente que deseja nos presentear</h3>
+        <h3>Selecione um item que deseja nos presentear</h3>
       </div>
 
       <Box
