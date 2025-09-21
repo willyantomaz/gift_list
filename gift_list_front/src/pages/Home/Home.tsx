@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./Home.css";
 import api from "../../services/api";
 import type { Gift } from "../../entity/gift";
@@ -16,13 +16,12 @@ import {
   List,
   ListItem,
   ListItemText,
-  Grid,
   CardContent,
   Typography,
   Fab,
+  Box,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-
 function Home() {
   const [listGifts, setListGifts] = useState<Gift[]>([]);
   const [selectedGifts, setSelectedGifts] = useState<number[]>([]);
@@ -31,6 +30,7 @@ function Home() {
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
   async function getGifts() {
     const response = await api.get("/gifts");
@@ -85,30 +85,29 @@ function Home() {
         <h3>Selecione o presente que deseja nos presentear</h3>
       </div>
 
-      <Grid container spacing={3} sx={{ p: 2 }}>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+          gap: 3,
+          p: 2,
+        }}
+      >
         {Object.keys(groupedGifts)
           .sort((a, b) => groupedGifts[a].length - groupedGifts[b].length)
           .map((categoryName) => (
-            <Grid item xs={12} sm={6} key={categoryName}>
-              <Card sx={{ width: "300px" }}>
+            <Box key={categoryName}>
+              <Card sx={{ width: "100%" }}>
                 <CardContent>
                   <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
                     {categoryName}
                   </Typography>
                   <List
-                    sx={
-                      theme.breakpoints.up("md")
-                        ? {
-                            maxHeight: 10 * 56, // 10 itens na versão desktop
-                            overflowY: "auto",
-                            overflowX: "hidden",
-                          }
-                        : {
-                            maxHeight: 5 * 56, // 5 itens no mobile
-                            overflowY: "auto",
-                            overflowX: "hidden",
-                          }
-                    }
+                    sx={{
+                      maxHeight: (isDesktop ? 10 : 5) * 56,
+                      overflowY: "auto",
+                      overflowX: "hidden",
+                    }}
                   >
                     {groupedGifts[categoryName].map((gift) => (
                       <ListItem
@@ -143,9 +142,9 @@ function Home() {
                   </List>
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
           ))}
-      </Grid>
+      </Box>
 
       {selectedGifts.length > 0 && (
         <Fab
