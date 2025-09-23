@@ -258,11 +258,7 @@ function Home() {
             onChange={(e) => setName(e.target.value)}
           />
         </DialogContent>
-        <img
-          src="/public/assets/casamento.svg"
-          alt="Celebration"
-          width="100%"
-        />
+        <img src="/assets/casamento.svg" alt="casamento" width="100%" />
 
         <DialogActions
           style={{ justifyContent: "space-around", padding: "16px" }}
