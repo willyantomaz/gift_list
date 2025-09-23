@@ -20,18 +20,21 @@ import {
   Typography,
   Fab,
   Box,
+  CircularProgress,
+  Backdrop,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import QrCodeIcon from "@mui/icons-material/QrCode";
+import PixIcon from "@mui/icons-material/Pix";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import pixImg from "/public/assets/pix.jpeg";
+import pixImg from "/assets/pix.jpeg";
 function Home() {
   const [listGifts, setListGifts] = useState<Gift[]>([]);
   const [selectedGifts, setSelectedGifts] = useState<number[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [name, setName] = useState("");
+  const [isLoadingGifts, setIsLoadingGifts] = useState(true);
+  const [isConfirming, setIsConfirming] = useState(false);
 
-  // Pix Dialog states
   const [openPixDialog, setOpenPixDialog] = useState(false);
   const pixCode = "fea8ef48-fa5c-4ddd-a7ec-8cbd78a0161e";
   const [copied, setCopied] = useState(false);
@@ -41,8 +44,15 @@ function Home() {
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
   async function getGifts() {
-    const response = await api.get("/gifts");
-    setListGifts(response.data);
+    try {
+      setIsLoadingGifts(true);
+      const response = await api.get("/gifts");
+      setListGifts(response.data);
+    } catch (error) {
+      console.error("Error fetching gifts:", error);
+    } finally {
+      setIsLoadingGifts(false);
+    }
   }
 
   useEffect(() => {
@@ -61,7 +71,6 @@ function Home() {
     setOpenDialog(true);
   };
 
-  // Pix Dialog handlers
   const handleOpenPixDialog = () => {
     setOpenPixDialog(true);
     setCopied(false);
@@ -84,15 +93,22 @@ function Home() {
   };
 
   const handleConfirm = async () => {
-    await api.put("/gifts/select", {
-      name,
-      gifts: selectedGifts,
-    });
+    try {
+      setIsConfirming(true);
+      await api.put("/gifts/select", {
+        name,
+        gifts: selectedGifts,
+      });
 
-    setOpenDialog(false);
-    setSelectedGifts([]);
-    setName("");
-    getGifts();
+      setOpenDialog(false);
+      setSelectedGifts([]);
+      setName("");
+      getGifts();
+    } catch (error) {
+      console.error("Erro ao confirmar presentes:", error);
+    } finally {
+      setIsConfirming(false);
+    }
   };
 
   const groupedGifts = listGifts.reduce<Record<string, Gift[]>>((acc, gift) => {
@@ -104,15 +120,52 @@ function Home() {
     return acc;
   }, {});
 
+  // Loading inicial dos presentes
+  if (isLoadingGifts) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
+        <CircularProgress size={60} />
+        <Typography variant="h6">Carregando presentes...</Typography>
+      </Box>
+    );
+  }
+
   return (
     <>
+      {/* Loading backdrop para confirmação */}
+      <Backdrop
+        sx={{ color: "#fff", zIndex: theme.zIndex.modal + 1 }}
+        open={isConfirming}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          <CircularProgress color="inherit" size={60} />
+          <Typography variant="h6">Confirmando presentes...</Typography>
+        </Box>
+      </Backdrop>
+
       <div className="container">
         <h1>Lista de Presentes</h1>
         <h3>Selecione um item que deseja nos presentear</h3>
       </div>
 
       <Fab
-        color="secondary"
+        color="default"
         aria-label="pix"
         onClick={handleOpenPixDialog}
         sx={{
@@ -121,9 +174,14 @@ function Home() {
           left: theme.spacing(4),
           zIndex: 1201,
           scale: 1.3,
+          backgroundColor: "#40CDF7",
+          color: "#fff",
+          "&:hover": {
+            backgroundColor: "#2bb7e6",
+          },
         }}
       >
-        <QrCodeIcon sx={{ scale: 1.2 }} />
+        <PixIcon sx={{ scale: 1.2 }} />
       </Fab>
 
       <Box
@@ -205,7 +263,6 @@ function Home() {
         </Fab>
       )}
 
-      {/* Dialog do Pix */}
       <Dialog open={openPixDialog} onClose={handleClosePixDialog}>
         <DialogTitle>Faça um Pix </DialogTitle>
         <DialogContent sx={{ textAlign: "center" }}>
@@ -256,21 +313,36 @@ function Home() {
             variant="outlined"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            disabled={isConfirming}
           />
         </DialogContent>
-        <img src="/assets/casamento.svg" alt="casamento" width="100%" />
+        <Box sx={{ p: 2, textAlign: "center" }}>
+          <img
+            src="/assets/casamento.svg"
+            alt="casamento"
+            style={{
+              maxWidth: "100%",
+              height: "auto",
+              maxHeight: fullScreen ? "150px" : "200px",
+              objectFit: "contain",
+            }}
+          />
+        </Box>
 
         <DialogActions
           style={{ justifyContent: "space-around", padding: "16px" }}
         >
-          <Button onClick={handleCloseDialog}>Cancelar</Button>
+          <Button onClick={handleCloseDialog} disabled={isConfirming}>
+            Cancelar
+          </Button>
           <Button
             onClick={handleConfirm}
-            disabled={!name.trim()}
+            disabled={!name.trim() || isConfirming}
             variant="contained"
             color="primary"
+            startIcon={isConfirming ? <CircularProgress size={20} /> : null}
           >
-            Confirmar
+            {isConfirming ? "Confirmando..." : "Confirmar"}
           </Button>
         </DialogActions>
       </Dialog>
