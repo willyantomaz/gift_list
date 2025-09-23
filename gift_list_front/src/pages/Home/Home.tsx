@@ -22,11 +22,19 @@ import {
   Box,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import QrCodeIcon from "@mui/icons-material/QrCode";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import pixImg from "/public/assets/pix.jpeg";
 function Home() {
   const [listGifts, setListGifts] = useState<Gift[]>([]);
   const [selectedGifts, setSelectedGifts] = useState<number[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [name, setName] = useState("");
+
+  // Pix Dialog states
+  const [openPixDialog, setOpenPixDialog] = useState(false);
+  const pixCode = "fea8ef48-fa5c-4ddd-a7ec-8cbd78a0161e";
+  const [copied, setCopied] = useState(false);
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
@@ -51,6 +59,24 @@ function Home() {
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
+  };
+
+  // Pix Dialog handlers
+  const handleOpenPixDialog = () => {
+    setOpenPixDialog(true);
+    setCopied(false);
+  };
+  const handleClosePixDialog = () => {
+    setOpenPixDialog(false);
+  };
+  const handleCopyPix = async () => {
+    try {
+      await navigator.clipboard.writeText(pixCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
   };
 
   const handleCloseDialog = () => {
@@ -84,6 +110,21 @@ function Home() {
         <h1>Lista de Presentes</h1>
         <h3>Selecione um item que deseja nos presentear</h3>
       </div>
+
+      <Fab
+        color="secondary"
+        aria-label="pix"
+        onClick={handleOpenPixDialog}
+        sx={{
+          position: "fixed",
+          bottom: theme.spacing(4),
+          left: theme.spacing(4),
+          zIndex: 1201,
+          scale: 1.3,
+        }}
+      >
+        <QrCodeIcon sx={{ scale: 1.2 }} />
+      </Fab>
 
       <Box
         sx={{
@@ -159,10 +200,36 @@ function Home() {
             transition: "opacity 0.3s ease-in-out",
           }}
         >
-          <CheckCircleIcon sx={{ mr: 5 }} />
+          <CheckCircleIcon sx={{ mr: 2 }} />
           Confirmar
         </Fab>
       )}
+
+      {/* Dialog do Pix */}
+      <Dialog open={openPixDialog} onClose={handleClosePixDialog}>
+        <DialogTitle>Faça um Pix </DialogTitle>
+        <DialogContent sx={{ textAlign: "center" }}>
+          <img
+            src={pixImg}
+            alt="QR Code Pix"
+            style={{ maxWidth: 300, width: "100%", marginBottom: 16 }}
+          />
+          <Typography variant="body1" sx={{ wordBreak: "break-all", mb: 2 }}>
+            {pixCode}
+          </Typography>
+          <Button
+            variant="outlined"
+            startIcon={<ContentCopyIcon />}
+            onClick={handleCopyPix}
+            sx={{ mb: 1 }}
+          >
+            {copied ? "Copiado!" : "Copiar código Pix"}
+          </Button>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClosePixDialog}>Fechar</Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog
         open={openDialog}
@@ -191,7 +258,11 @@ function Home() {
             onChange={(e) => setName(e.target.value)}
           />
         </DialogContent>
-        <img src="/src/assets/casamento.svg" alt="Celebration" width="100%" />
+        <img
+          src="/public/assets/casamento.svg"
+          alt="Celebration"
+          width="100%"
+        />
 
         <DialogActions
           style={{ justifyContent: "space-around", padding: "16px" }}
