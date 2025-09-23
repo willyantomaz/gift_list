@@ -293,9 +293,8 @@ function Home() {
         onClose={handleCloseDialog}
         fullScreen={fullScreen}
       >
-        <DialogTitle>Confirmar Presente</DialogTitle>
+        <DialogTitle>Confirmar Presente:</DialogTitle>
         <DialogContent>
-          <p>Você está confirmando os seguintes presentes:</p>
           <List>
             {listGifts
               .filter((gift) => selectedGifts.includes(gift.id))

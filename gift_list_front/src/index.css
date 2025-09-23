@@ -8,15 +8,6 @@ body {
   color: #333;
   line-height: 1.6;
   padding: 20px;
-  /* background-image: url("/src/assets/cerimonia-de-casamento-em-Ouro-Preto.png");
-  background-size: contain; 
-  background-repeat: no-repeat;
-  background-position: center top;
-  background-attachment: fixed; */
-}
-
-p {
-  font-size: 20px;
 }
 
 .container {
